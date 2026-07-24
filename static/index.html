@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OpenHousing — Instant Property Estimate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#FAF7F1;
+    --ivory-deep:#F1ECE1;
+    --ink:#1C1B18;
+    --ink-soft:#5B5A52;
+    --forest:#1F3A2E;
+    --forest-deep:#152A21;
+    --sage:#B9C6B4;
+    --gold:#B4924F;
+    --gold-soft:rgba(180,146,79,0.14);
+    --line:rgba(28,27,24,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ivory);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+    background-image:
+      linear-gradient(180deg, rgba(31,58,46,0.05), rgba(31,58,46,0) 340px),
+      repeating-linear-gradient(90deg, rgba(31,58,46,0.028) 0 34px, transparent 34px 68px);
+    background-position: 0 0, 0 60px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:22px 48px;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Newsreader', serif;
+    font-size:20px;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .brand .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--gold);
+    display:inline-block;
+  }
+  .topbar .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    border:1px solid var(--line);
+    padding:6px 12px;
+    border-radius:999px;
+  }
+
+  .hero{
+    padding:64px 48px 20px;
+    max-width:1180px;
+    margin:0 auto;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-skyline{
+    position:absolute;
+    right:-200px;
+    top:-6px;
+    width:640px;
+    max-width:58%;
+    opacity:1;
+    pointer-events:none;
+  }
+  @media (max-width:760px){
+    .hero-skyline{ display:none; }
+  }
+  .kicker{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:16px;
+  }
+  h1{
+    font-family:'Newsreader', serif;
+    font-weight:500;
+    font-style:italic;
+    font-size:clamp(36px,4.4vw,58px);
+    line-height:1.08;
+    margin:0 0 18px;
+    max-width:680px;
+    color:var(--forest-deep);
+  }
+  h1 em{ font-style:normal; font-weight:600; }
+  .hero p{
+    font-size:16.5px;
+    color:var(--ink-soft);
+    max-width:520px;
+    line-height:1.6;
+  }
+
+  .layout{
+    max-width:1180px;
+    margin:20px auto 90px;
+    padding:0 48px;
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:22px;
+    align-items:start;
+  }
+
+  .form-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:6px;
+  }
+  .form-card-head{
+    padding:24px 30px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .form-card-head h2{
+    font-family:'Newsreader', serif;
+    font-weight:600;
+    font-size:19px;
+    margin:0 0 4px;
+  }
+  .form-card-head p{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0;
+  }
+
+  .group{
+    padding:22px 30px 6px;
+  }
+  .group-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:14px;
+  }
+  .grid3{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px 20px;
+    margin-bottom:8px;
+  }
+
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:500;
+    color:var(--ink);
+    margin-bottom:2px;
+  }
+  .field .hint{
+    display:block;
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:6px;
+  }
+  .field .input-row{
+    border-bottom:1.5px solid var(--line);
+    display:flex; align-items:baseline;
+    padding-bottom:4px;
+    transition:border-color .15s ease;
+  }
+  .field .input-row:focus-within{ border-color:var(--forest); }
+  .field input[type=number]{
+    width:100%;
+    border:none;
+    background:transparent;
+    font-family:'Inter', sans-serif;
+    font-size:16px;
+    font-weight:600;
+    color:var(--ink);
+    outline:none;
+  }
+
+  .toggle-line{
+    display:flex; align-items:center; gap:9px;
+    padding:16px 30px 22px;
+    margin-top:8px;
+    border-top:1px dashed var(--line);
+  }
+  .toggle-line input{ width:16px; height:16px; accent-color:var(--forest); }
+  .toggle-line span{ font-size:13px; color:var(--ink); }
+  .toggle-line small{ color:var(--ink-soft); font-size:12px; }
+
+  .form-actions{
+    padding:20px 30px 26px;
+    display:flex; align-items:center; gap:16px;
+    flex-wrap:wrap;
+  }
+  button{
+    background:var(--forest);
+    color:var(--ivory);
+    border:none;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:14px 28px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:background .15s ease, transform .1s ease;
+  }
+  button:hover{ background:var(--forest-deep); }
+  button:active{ transform:scale(0.98); }
+  button:disabled{ opacity:.55; cursor:default; }
+  .live-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    display:flex; align-items:center; gap:7px;
+  }
+  .live-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:#2E8B57;
+    box-shadow:0 0 0 0 rgba(46,139,87,.5);
+    animation:pulse 2s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow:0 0 0 0 rgba(46,139,87,.45);}
+    70%{ box-shadow:0 0 0 6px rgba(46,139,87,0);}
+    100%{ box-shadow:0 0 0 0 rgba(46,139,87,0);}
+  }
+
+  .listing{
+    position:sticky;
+    top:16px;
+    background:var(--forest-deep);
+    border-radius:6px;
+    overflow:hidden;
+    color:var(--ivory);
+    box-shadow:0 22px 50px -18px rgba(21,42,33,0.55);
+  }
+  .listing-media{
+    height:150px;
+    position:relative;
+    background:
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.045) 0 2px, transparent 2px 22px),
+      linear-gradient(160deg, #24493A 0%, #152A21 70%);
+    display:flex;
+    align-items:flex-end;
+    padding:14px 18px;
+  }
+  .listing-media .badge{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    background:var(--gold);
+    color:#241C0C;
+    padding:5px 11px;
+    border-radius:999px;
+    font-weight:600;
+  }
+  .listing-media .addr{
+    position:absolute;
+    bottom:14px; right:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:rgba(250,247,241,0.55);
+    text-align:right;
+  }
+
+  .listing-body{ padding:24px 26px 26px; }
+  .listing-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    font-weight:500;
+    letter-spacing:0.09em;
+    text-transform:uppercase;
+    color:var(--sage);
+    margin-bottom:10px;
+  }
+  .listing-price{
+    font-family:'Newsreader', serif;
+    font-weight:600;
+    font-size:clamp(46px,5.2vw,64px);
+    line-height:1;
+    margin-bottom:6px;
+    transition:opacity .15s ease;
+    letter-spacing:-0.01em;
+  }
+  .listing-price .cur{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:17px;
+    color:var(--sage);
+    margin-left:9px;
+    font-weight:500;
+  }
+  .listing-sub{
+    font-size:12.5px;
+    color:rgba(250,247,241,0.6);
+    margin-bottom:20px;
+  }
+
+  .stat-strip{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    border-top:1px solid rgba(255,255,255,0.12);
+    padding-top:16px;
+    gap:12px;
+  }
+  .stat-strip div{ text-align:left; }
+  .stat-strip .v{
+    font-family:'Newsreader', serif;
+    font-size:19px;
+    font-weight:600;
+  }
+  .stat-strip .k{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:rgba(250,247,241,0.5);
+    margin-top:2px;
+  }
+
+  .conf-bar{ margin-top:20px; }
+  .conf-bar .row{
+    display:flex; justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:rgba(250,247,241,0.55);
+    margin-bottom:6px;
+  }
+  .conf-track{
+    height:4px; width:100%;
+    background:rgba(255,255,255,0.12);
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .conf-fill{
+    height:100%;
+    width:88%;
+    background:var(--gold);
+    border-radius:2px;
+  }
+
+  .footer-note{
+    max-width:1180px;
+    margin:0 auto 60px;
+    padding:0 48px;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  .error-msg{
+    margin-top:14px;
+    padding:12px 16px;
+    background:#FBEAEA;
+    border:1px solid #E3B6B6;
+    color:#8A2E2E;
+    font-size:12.5px;
+    border-radius:4px;
+    display:none;
+  }
+  .error-msg.show{ display:block; }
+
+  @media (max-width:920px){
+    .layout{ grid-template-columns:1fr; }
+    .listing{ position:static; }
+    .topbar, .hero, .layout, .footer-note{ padding-left:22px; padding-right:22px; }
+  }
+  @media (max-width:600px){
+    .grid3{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:420px){
+    .grid3{ grid-template-columns:1fr; }
+    .stat-strip{ grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> OpenHousing</div>
+    <div class="tag">Urban Data Observatory</div>
+  </div>
+
+  <div class="hero">
+    <svg class="hero-skyline" viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- back row, faint -->
+      <g fill="#1F3A2E" opacity="0.10">
+        <rect x="20"  y="90"  width="46" height="140"/>
+        <rect x="76"  y="60"  width="34" height="170"/>
+        <rect x="360" y="70"  width="40" height="160"/>
+        <rect x="410" y="100" width="52" height="130"/>
+        <rect x="470" y="50"  width="36" height="180"/>
+      </g>
+      <!-- front row, main silhouette -->
+      <g fill="#1F3A2E" opacity="0.22">
+        <rect x="0"   y="150" width="52" height="80"/>
+        <rect x="58"  y="120" width="38" height="110"/>
+        <rect x="102" y="160" width="60" height="70"/>
+        <polygon points="132,160 162,160 147,138"/>
+        <rect x="168" y="105" width="42" height="125"/>
+        <rect x="216" y="140" width="30" height="90"/>
+        <rect x="252" y="95"  width="46" height="135"/>
+        <rect x="304" y="132" width="34" height="98"/>
+        <rect x="344" y="150" width="58" height="80"/>
+        <polygon points="344,150 402,150 373,124"/>
+        <rect x="408" y="112" width="40" height="118"/>
+        <rect x="454" y="145" width="66" height="85"/>
+      </g>
+      <!-- lit windows, gold accent -->
+      <g fill="#B4924F" opacity="0.85">
+        <rect x="10"  y="165" width="6" height="8"/>
+        <rect x="26"  y="165" width="6" height="8"/>
+        <rect x="10"  y="185" width="6" height="8"/>
+        <rect x="68"  y="140" width="5" height="7"/>
+        <rect x="68"  y="158" width="5" height="7"/>
+        <rect x="82"  y="140" width="5" height="7"/>
+        <rect x="178" y="125" width="6" height="8"/>
+        <rect x="194" y="125" width="6" height="8"/>
+        <rect x="178" y="150" width="6" height="8"/>
+        <rect x="264" y="115" width="6" height="8"/>
+        <rect x="280" y="115" width="6" height="8"/>
+        <rect x="264" y="140" width="6" height="8"/>
+        <rect x="280" y="140" width="6" height="8"/>
+        <rect x="420" y="132" width="6" height="8"/>
+        <rect x="420" y="152" width="6" height="8"/>
+        <rect x="470" y="165" width="6" height="8"/>
+        <rect x="486" y="165" width="6" height="8"/>
+        <rect x="470" y="185" width="6" height="8"/>
+      </g>
+      <!-- ground line -->
+      <rect x="0" y="228" width="520" height="2" fill="#1F3A2E" opacity="0.18"/>
+    </svg>
+
+    <div class="kicker">Instant Valuation Tool</div>
+    <h1>Know what a property<br/><em>is really worth</em>, before you decide.</h1>
+    <p>Enter a tract's physical and socio economic profile and get an instant, model backed price estimate  trained on real housing market data.</p>
+  </div>
+
+  <div class="layout">
+    <form class="form-card" id="predict-form">
+      <div class="form-card-head">
+        <h2>Property Profile</h2>
+        <p>All fields reflect the surrounding tract, not just the unit itself.</p>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Property</div>
+        <div class="grid3">
+          <div class="field">
+            <label for="rm">Rooms per dwelling</label>
+            <span class="hint">average count</span>
+            <div class="input-row"><input type="number" step="0.1" id="rm" value="6.5" required /></div>
+          </div>
+          <div class="field">
+            <label for="age">Building age</label>
+            <span class="hint">% built before 1940</span>
+            <div class="input-row"><input type="number" step="1" id="age" value="65" required /></div>
+          </div>
+          <div class="field">
+            <label for="dis">Distance to jobs</label>
+            <span class="hint">weighted, km</span>
+            <div class="input-row"><input type="number" step="0.1" id="dis" value="4.0" required /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Neighborhood</div>
+        <div class="grid3">
+          <div class="field">
+            <label for="crim">Crime rate</label>
+            <span class="hint">per capita</span>
+            <div class="input-row"><input type="number" step="0.01" id="crim" value="0.1" required /></div>
+          </div>
+          <div class="field">
+            <label for="nox">Air quality</label>
+            <span class="hint">nitric oxide conc.</span>
+            <div class="input-row"><input type="number" step="0.01" id="nox" value="0.5" required /></div>
+          </div>
+          <div class="field">
+            <label for="lstat">Lower-status pop.</label>
+            <span class="hint">% of tract</span>
+            <div class="input-row"><input type="number" step="0.1" id="lstat" value="5.0" required /></div>
+          </div>
+          <div class="field">
+            <label for="zn">Zoned land</label>
+            <span class="hint">% large-lot residential</span>
+            <div class="input-row"><input type="number" step="1" id="zn" value="18" required /></div>
+          </div>
+          <div class="field">
+            <label for="indus">Industrial land</label>
+            <span class="hint">% non-retail acres</span>
+            <div class="input-row"><input type="number" step="0.1" id="indus" value="2.3" required /></div>
+          </div>
+          <div class="field">
+            <label for="rad">Highway access</label>
+            <span class="hint">accessibility index</span>
+            <div class="input-row"><input type="number" step="1" id="rad" value="1" required /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">Civic &amp; Tax</div>
+        <div class="grid3">
+          <div class="field">
+            <label for="tax">Property tax rate</label>
+            <span class="hint">per $10,000</span>
+            <div class="input-row"><input type="number" step="1" id="tax" value="296" required /></div>
+          </div>
+          <div class="field">
+            <label for="ptratio">Pupil-teacher ratio</label>
+            <span class="hint">by town</span>
+            <div class="input-row"><input type="number" step="0.1" id="ptratio" value="15.3" required /></div>
+          </div>
+          <div class="field">
+            <label for="b">Census index</label>
+            <span class="hint">historical demographic feature</span>
+            <div class="input-row"><input type="number" step="0.1" id="b" value="396.9" required /></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-line">
+        <input type="checkbox" id="chas" />
+        <span>Bounds the Charles River</span>
+        <small>&nbsp; waterfront tracts often carry a premium</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" id="submit-btn">Update estimate</button>
+        <div class="live-note"><span class="live-dot"></span> live model, updates as you edit</div>
+      </div>
+
+      <div class="error-msg" id="error-box" style="margin:0 30px 22px;"></div>
+    </form>
+
+    <div class="listing">
+      <div class="listing-media">
+        <span class="badge">Model Estimate</span>
+        <span class="addr">Tract Profile<br/>Sample Valuation</span>
+      </div>
+      <div class="listing-body">
+        <div class="listing-label">Estimated market value</div>
+        <div class="listing-price" id="price-value">$24,887<span class="cur">.21 USD</span></div>
+        <div class="listing-sub" id="price-status">Live estimate adjust any field to update</div>
+           
+        <div class="stat-strip">
+          <div><div class="v" id="stat-rooms">6.5</div><div class="k">Rooms</div></div>
+          <div><div class="v" id="stat-age">65</div><div class="k">Yrs. Old</div></div>
+          <div><div class="v" id="stat-dis">4.0</div><div class="k">km to jobs</div></div>
+        </div>
+
+        <div class="conf-bar">
+          <div class="row"><span>Model confidence (R²)</span><span>0.880</span></div>
+          <div class="conf-track"><div class="conf-fill"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    <span>OpenHousing &amp; AI Cloud Project</span>
+    <span id="api-status">checking API…</span>
+  </div>
+
+<script>
+  const API_BASE = window.location.origin;
+  const form = document.getElementById('predict-form');
+  const priceValue = document.getElementById('price-value');
+  const priceStatus = document.getElementById('price-status');
+  const errorBox = document.getElementById('error-box');
+  const btn = document.getElementById('submit-btn');
+  const statusEl = document.getElementById('api-status');
+
+  const ids = ['crim','zn','indus','chas','nox','rm','age','dis','rad','tax','ptratio','b','lstat'];
+
+  fetch(API_BASE + '/health').then(r => r.json()).then(d => {
+    statusEl.textContent = 'API status: ' + (d.status || 'unknown');
+  }).catch(() => { statusEl.textContent = 'API unreachable'; });
+
+  function getPayload(){
+    return {
+      crim: parseFloat(document.getElementById('crim').value),
+      zn: parseFloat(document.getElementById('zn').value),
+      indus: parseFloat(document.getElementById('indus').value),
+      chas: document.getElementById('chas').checked ? 1 : 0,
+      nox: parseFloat(document.getElementById('nox').value),
+      rm: parseFloat(document.getElementById('rm').value),
+      age: parseFloat(document.getElementById('age').value),
+      dis: parseFloat(document.getElementById('dis').value),
+      rad: parseInt(document.getElementById('rad').value),
+      tax: parseInt(document.getElementById('tax').value),
+      ptratio: parseFloat(document.getElementById('ptratio').value),
+      b: parseFloat(document.getElementById('b').value),
+      lstat: parseFloat(document.getElementById('lstat').value),
+    };
+  }
+
+  async function runPrediction(){
+    errorBox.classList.remove('show');
+    const payload = getPayload();
+    if (Object.values(payload).some(v => Number.isNaN(v))) return;
+
+    btn.disabled = true;
+    priceStatus.textContent = 'Recalculating…';
+    priceValue.style.opacity = '0.4';
+
+    try {
+      const res = await fetch(API_BASE + '/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('API returned ' + res.status);
+      const data = await res.json();
+      const val = Number(data.predicted_price_usd);
+      const whole = Math.floor(val).toLocaleString();
+      const cents = (val - Math.floor(val)).toFixed(2).slice(2);
+      priceValue.innerHTML = '$' + whole + '<span class="cur">.' + cents + ' USD</span>';
+      priceStatus.textContent = 'Live estimate adjust any field to update';
+      document.getElementById('stat-rooms').textContent = payload.rm.toFixed(1);
+      document.getElementById('stat-age').textContent = Math.round(payload.age);
+      document.getElementById('stat-dis').textContent = payload.dis.toFixed(1);
+    } catch (err) {
+      errorBox.textContent = 'Could not reach the model — ' + err.message;
+      errorBox.classList.add('show');
+      priceStatus.textContent = 'Estimate unavailable';
+    } finally {
+      btn.disabled = false;
+      priceValue.style.opacity = '1';
+    }
+  }
+
+  form.addEventListener('submit', (e) => { e.preventDefault(); runPrediction(); });
+
+  let debounceTimer;
+  ids.forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(runPrediction, 600);
+    });
+  });
+
+  runPrediction();
+</script>
+</body>
+</html>
