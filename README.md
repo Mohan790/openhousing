@@ -1,4 +1,4 @@
-# OpenHousing — My Contribution
+# OpenHousing
 
 **Scope owned:** Proof of Concept (POC), ETL Pipeline, Machine Learning Model, REST API, Web Interface
 
