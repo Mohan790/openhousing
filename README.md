@@ -111,3 +111,16 @@ Python 3.11 - pandas - scikit-learn - FastAPI - Uvicorn - joblib - vanilla HTML/
 
 - Target currency is **USD**, converted from the source dataset's `medv` (in $1000s)
 - No MLflow/Optuna/XGBoost/PostgreSQL — this implementation intentionally kept the stack minimal (CSV-based storage, Random Forest, no experiment tracking) to match project scope and timeline; flagging in case slides referencing those tools need to be reconciled with the actual codebase
+
+## 6. Containerization & Cloud Deployment
+To make the application portable and easy to deploy, the entire backend was containerized using Docker and deployed on Render.
+
+Docker Created a Dockerfile to package the FastAPI application, trained model, and dependencies into a single container. Configured the application to run with Uvicorn on port 8001. Ensured the API, static web interface, and ML model are all available from the same container.
+
+Run locally with Docker:
+
+docker build -t openhousing . docker run -p 8001:8001 openhousing
+
+The application is then accessible at:
+
+API: http://localhost:8001/ Web UI: http://localhost:8001/app Swagger Docs: http://localhost:8001/docs Render Cloud Deployment Deployed the Docker container to Render as a Web Service. Configured Render to build the Docker image automatically from the repository. Exposed port 8001 for serving the FastAPI application. Enabled automatic deployments on new commits, allowing updates to be published without manual server configuration.
