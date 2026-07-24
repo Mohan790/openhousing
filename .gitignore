@@ -5,3 +5,8 @@ __pycache__/
 venv/
 env/
 *.egg-info/
+<<<<<<< HEAD
+=======
+ml/model.pkl
+data/*.csv
+>>>>>>> da66ee4b045fee233c15c71db992b28b7c85da87
