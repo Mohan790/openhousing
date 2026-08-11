@@ -1,3 +1,4 @@
+"""OpenHousing ETL — pipeline orchestrator — built by Mohan790."""
 """
 Runs the full ETL pipeline: Extract -> Transform -> Load
 This is the single entry point you (or a scheduler like Airflow/cron) would call.
