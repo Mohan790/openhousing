@@ -61,7 +61,7 @@ def health():
 
 
 @app.post("/predict")
-@limiter.limit("10/minute")  # max 10 requests per minute, per IP address
+@limiter.limit("30/minute")  # generous enough for live form editing, still blocks abuse
 def predict(request: Request, features: HousingFeatures):
     df = pd.DataFrame([features.dict()])[FEATURES]
     prediction = model.predict(df)[0]
